@@ -2,6 +2,7 @@ import struct
 
 
 _U8_SIZE = 1
+_I8_SIZE = 1
 _U16_SIZE = 2
 
 BIG_ENDIAN = 0
@@ -62,6 +63,10 @@ class Rom:
     def read_u8(self):
         value = self.read_buf(_U8_SIZE)
         return struct.unpack("B", value)[0]
+
+    def read_i8(self):
+        value = self.read_buf(_U8_SIZE)
+        return struct.unpack("b", value)[0]
 
     def read_u16(self, endianess=LITTLE_ENDIAN):
         value = self.read_buf(_U16_SIZE)

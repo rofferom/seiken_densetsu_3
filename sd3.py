@@ -9,6 +9,7 @@ import sd3.seq.reader
 import sd3.tools.seq_operations
 import sd3.tools.jap_tbl
 import sd3.text_dumper
+import sd3.disasm.cpu
 
 
 def int_parse(value):
@@ -178,6 +179,28 @@ class GetOperationSub(Cmd):
             rom = sd3.rom.Rom.from_file(rom, sd3.rom.HighRomConv)
             addr = rom.read_addr_from_ptr(_BASE, args.idx, _BANK)
             logging.info("Routine location: %06X", addr)
+
+
+class DisplaySub(Cmd):
+    @staticmethod
+    def register_parser(subparsers):
+        name = "display_sub"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("addr", type=int_parse, help="Subroutine address")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        with open(args.rom, "rb") as f:
+            rom = sd3.rom.Rom.from_file(f, sd3.rom.HighRomConv)
+            cpu_reader = sd3.disasm.cpu.Reader(rom)
+
+            p = sd3.disasm.cpu.PRegister(X=0, M=0)
+            routine = cpu_reader.read_routine(args.addr, p)
+            routine.display()
 
 
 class GenOperationMap(Cmd):
