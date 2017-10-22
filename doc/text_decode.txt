@@ -1,0 +1,337 @@
+0x7E3080: Decoded chars (U16) RAM storage.
+
+0xF89800: Pointer table of tree used for sub streams.
+	0xF89800: first main decoder tree
+	0xF89802: second main decoder tree
+	0xF89804: first sub decoder tree
+	0xF89806: second sub decoder tree
+
+0xF80000: Pointer table to main streams.
+
+0xF82000: Pointer to the main tree location.
+
+0x7E2C00: Caracters names. Size limited to 6 bytes. NULL terminated.
+
+
+sub_C42CAB
+	Brief
+		Main decode function.
+
+	Description
+		Reads an operation code and then call the handler of the operation code.
+
+		It is important to note that the handler can provide the next operation
+		code. sub_C00740 does this (check sub_C00958 to get more explanation
+		about it, and sub_C02A52 to know how it is used.
+
+		Known text operation codes: 0x58, 0x5E
+
+	Important instruction
+		C42CB8: get the next operation code (actually calls sub_C02A52).
+		C42CCC: call the operation code handler.
+
+sub_C42D50
+	Brief
+		Load the location of the text to decode.
+
+	Important instructions
+		C42D6C: load the pointer from the ROM
+		C42D6F: complete the address in RAM with the hardcoded bank 0xF9
+
+sub_C0289D
+	Brief
+		Load the pointer to the main tree.
+
+	Describe
+		This routine loads the address of the main tree, and initialize the
+		decode struct that will be used to read bits from the ROM.
+
+	Important instructions
+		C028CD: load the pointer to the encoded main tree, from the ROM.
+
+sub_C008B1
+	Brief
+		Get N bits from the decoder
+
+		Params
+			A: the number of bits to get
+			X: offset to the decode struct
+
+		Returns
+			Y: a value composed of the N extracted bits
+
+	Description
+		This routine uses sub_C008F0 to fetch some U16 from the ROM.
+
+	Important instructions
+		C008D8: load a new U16 from the ROM
+		C008DB: get a bit and put it in the output variable
+
+sub_C026E6
+	Brief
+		Prepare to decode the main tree
+
+	Describe
+		The main tree is encoded in the ROM. The first bytes describe some
+		of its parameters, like its depth, the size of its data, etc.
+
+		A struct is created to store the decoded informations:
+			$12 (R): pointer to the decode struct (cf sub_C008A5)
+			$16 (RW): offset of the next jump to store
+			$18 (RW): offset of the decoded data to store
+			$1A (RW): depth of the current branch
+			$1C (R): number of depth bits
+			$1E (R): base offset for the depth
+			$20 (R): number of data bits
+
+		Here is the description of the stream header:
+			4 bits: useless
+			4 bits: bits count for depth coding => Y+1C
+			4 bits: base offset for depth computation
+			4 bits: bits count for data coding
+			16 bits: used to compute the address of the decoded tree
+			Y+1C bits: the depth of the first branch
+
+		Once the header is decoded, sub_C02749 is called to decode the tree.
+
+	Important instructions
+		C026A4: start tree decode
+
+sub_C02749
+	Brief
+		Decode the main tree
+
+		Params
+			A: the current depth
+
+		Returns
+			A: the offset to the next node
+
+	Decribe
+		This is a recursive routine that is called until the max depth is
+		reached. Actually each calls means "Load the next child".
+
+		Once the max depth is reached, the data node (a leaf node) is created,
+		and the max depth of the next branch is computed.
+
+		The routine returns in A the address of the created node (data node,
+		or internal node). Then the caller can store the offset of the node
+		in the appropriate child offset variable.
+
+	Important instructions
+		C026A4: check if the max depth is reached
+		C026B0: store the data in a leaf node
+		C026D4: store the offset to the left child
+		C026DD: store the offset to the right child
+
+sub_C02A52
+	Brief
+		Gets a decoded U16.
+
+	Describe
+		I have not fully analysed this routine, but it calls sub_C027B5 to get the
+		decoded U16.
+
+		$2A,X can store an operation code. If not, its value should be 0xFEFE.
+		This can be used by operation code handler, to provide the next operation
+		code to execute.
+
+		When $2A,X contains an operation code, the code will be returned by the
+		routine, and $2A,X is reseted to 0xFEFE.
+
+	Important instructions
+		C02A65: check if there is a saved operation code
+
+sub_C027B5
+	Brief
+		Use the global decoder and the main tree to decode an U16.
+
+	Describe
+		This routine just used a decoder like sub_C02825 to read the ROM bits
+		after bits, and traverse the main tree to fetch a U16.
+
+	Important instructions
+		C027CC: get the next bit from the ROM
+		C027D1: get the offset to the left node
+		C027D6: get the offset to the right node
+		C027DE: read the data stored in the leaf node
+
+sub_C46A9C
+	Brief
+		Decode character name
+
+	Description
+		This routine is called when the byte 0x19 is decoded.
+		The byte after is the index of the character name to display.
+
+		Location of the character names in RAM: 0x7E2C00.
+
+		The decoded index seems to start at 0x80. 0x80 is substracted to get
+		the address. The character names are NULL terminated, and have a max
+		length of 6.
+
+sub_C470C3
+	Brief
+		Text decompression routine
+
+	Description
+		Get decoded characters and store them in RAM.
+		Interpretation of control codes is done here.
+
+	Important instructions
+		C470CE: get next char
+		C47155: store char in RAM
+
+sub_C00740 => sub_C02C9A
+	Brief
+		Get the next decoded char that can be used by display routine.
+		Interpret the byte stream to use the required trees, and jump to
+		other locations to decode sub streams if required.
+
+	Description
+		This routine works with 4 different decoders. Each decoder is used at
+		different moments, depending of the state of the global state of the
+		decode process. Each decoder has a dedicated tree.
+
+		The char decode has two different states: a "main" state and a "sub"
+		state. The main state is the default state, and it gets data from the
+		byte stream pointer by the pointer loaded in sub_?????. Each state
+		uses two different decoders.
+
+		In each state, a first byte (B1) is decoded, using sub_C02825 and the
+		first decoder of the state.
+
+		An extra byte (B2) can be loaded if the first byte is in [0x01, 0x09],
+		using sub_C02825 and the second decoder of the state. Both bytes are
+		assembled to form a U16: B1B2.
+
+		If B1B2 >= 0x410, it means that the decoder should jump to another
+		location. The routine sub_C02C2F is called to configure the next
+		location to decode. Note that routine sub_C02C2F call this routine
+		(sub_C02C9A) to get the next decoded char.
+
+		The end of stream is detected when the main decoder returns 0x00.
+		When this happens, sub_C00958 is called to check if there is a pending
+		operation code in the current stream. Then the routine returns 0xFFFF.
+		This value means "End of stream" for .
+
+	Important instructions
+		C02CB1/C02CB4: check the state ($44,X)
+		C02CBB: check for the end of the main stream
+		C02D2E: call sub_C00958 to check if the next operation code is provided
+						by the current stream
+
+		Main decoder
+			The offset of the first decoder is loaded in sub_C470C3 at
+			instruction C470CC ($2E).
+
+			C02CC3: load the offset to the second decoder ($3A,Y)
+
+		Sub decoder
+			C02CE3: load the offset to the first decoder ($3C,Y)
+			C02CE3: load the offset to the second decoder ($3E,Y)
+
+sub_C00958
+	Brief
+		Check if the current decoder can provide an operation code
+
+	Description
+		The description of the used struct is available in sub_C008A5's
+		documentation.
+
+		This routine checks the remaining bits in the stream. Note that
+		X+0004 is the number of remaining bits, plus 1.
+
+		If there are less than 8 remaining bits, the routine does nothing.
+
+		If there are exactly 8 remaining bits, the MSB is used to form the
+		next operation code.
+
+		If there more than 8 remaining bits, the last 8 bits are used to form
+		the next operation code.
+
+		sub_C02AC4 is called to store the next operation code.
+
+	Important instructions
+
+
+sub_C02825
+	Brief
+		Decode the next char, using the decoder given in parameter X.
+
+	Description
+		The decoder is a struct with the following fields
+			X+0000: offset to the substruct that contains to the location of
+					the ROM to read
+			X+0004: the bank of the tree
+			X+0002: the offset of the tree in the bank
+			X+0006: the size of the tree
+
+		The routine just fetch the next bit from the ROM, using sub_C008A5,
+		and explored the tree.
+
+sub_C008A5
+	Brief
+		Return the next bit from the ROM. The offset of the struct that stores
+		the required information is given in parameter X.
+
+	Description
+		The struct has the following fields
+			X+0000: offset of the byte stream
+			X+0002: bank of the byte stream
+			X+0004: the number of remaining bits
+			X+0006: the U16 loaded from the ROM
+
+		The routine just checks if there is still bits to read. Otherwise, it
+		calls sub_C008F0 to read a new U16 from the ROM.
+
+		The routine returns the most significant bit of X+0006.
+
+sub_C008F0
+	Brief
+		Load a new U16 from the ROM. The offset of the struct that stores
+		the required information is given in parameter X.
+
+	Description
+		There are two cases in this routine.
+
+		If the struct doesn't point to a specific location in the ROM (if the
+		bank in the struct is 0), the global decoder is called twice.
+		The first call returns B1, the second B2. The U16 built is: B1B2.
+
+		IF the stuct does point to a valid location in the ROM, a U16 is loaded.
+
+	Important instructions
+		C008FE: check if the struct contains all the required information.
+				If not, the routine calls sub_C02A52 twice to get two bytes,
+				and merge them to build a new U16.
+
+sub_C02C2F
+	Brief
+		Jump to the next block, and return the first decoded char of the next
+		block.
+
+		Parameter
+			A (U16 decoded in sub_C02C9A).
+
+	Description
+		Load the offset to the next block. The blocks offsets are gathered in
+		a pointer table.
+
+		The index of the next block in the table is (A - 0x04C). The table is
+		stored at 0xF89800.
+
+		The sub decoder is initialized by sub_C00884.
+
+sub_C00884
+	Brief
+		Init a decoder.
+
+		Parameters
+			A: bank in the ROM
+			Y: offset in the ROM
+			X: offset of the decoder.
+
+	Description
+			X+0004 is set to 1 to trigger the loading of a new U16 from the ROM
+			at the next call of sub_C008A5.

@@ -1,0 +1,67 @@
+0x7E3080: Decoded chars (U16) RAM storage.
+
+0xFE2F00: font location.
+
+0x7e3400: address of the text that will be transfered to the VRAM.
+ 
+0x0800: VRAM address of the decoded text.
+
+sub_C4754D
+	Brief
+		Seems to be the main text decode routine.
+
+	Description
+		It reads the characters stored at 0x7E3080, and store them into the RAM.
+		It calls sub_C475A5 to read the char from the font and store it into
+		the RAM.
+
+	Important instructions
+		C47598: load the next char to display
+
+
+sub_C475A5
+		Brief
+			Decode and store a char into the RAM.
+
+		Params
+			A: the code of the char to display
+			Y: the location where to store the char gfx into the RAM
+
+		Description
+			This routine decodes a char stored in the font, and stores it in
+			the RAM at the approprate index.
+
+			The font has a weird encoding. A 14x14 char is encoded in 25 bytes.
+			Each 16 bits word is divided as:
+				cccc cccc cccc ccnn
+
+			Where
+				cccc cccc cccc cc is a complete line
+				nn are two bytes that will be used to create another line.
+
+			The main steps are:
+				- read and store 7 lines (sub_C47613 is used to to this)
+				- with 7 lines read, we have gathered 2 * 7 = 14 bits.
+				  this new line can be stored directly
+				- read and store 5 lines. sub_C47613 is used to to this).
+				  At this point, we have written 7 + 1 + 5 = 13 lines
+				- with 5 lines read, we have gathered 2 * 5 = 10 bits. There
+				  are 4 missing bits to have the last line. An extra byte is
+				  read to complete the last line
+
+			Note that the decoded char value isn't the index of the char into
+			the font. 0x20 should be substracted before reading the font
+			(instruction C475A7).
+
+sub_C47613
+	Brief
+		Read and store N lines into the RAM
+
+	Description
+		$3124 and $3125 seem to be the remaining bits that are used to create
+		a new line in sub_C475A5.
+
+	Params
+		A: the number of lines to read
+		X: the offset in the font
+		Y: the location where to store the char gfx into the RAM
