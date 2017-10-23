@@ -167,6 +167,7 @@ class Decoder:
             else:
                 decoded.append(char)
 
+        logging.debug("Partial decode: %s", decoded)
         self.decoded.append(decoded)
         return last_reader.get_pending_byte()
 
