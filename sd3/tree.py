@@ -76,7 +76,7 @@ def build_ctrl_tree(rom):
     def rom_reader():
         return rom.read_u16(endianess=sd3.rom.BIG_ENDIAN)
 
-    reader = sd3.bitutils.BitReader(rom_reader, WORD_SIZE)
+    reader = sd3.bitutils.BitReader.from_src(rom_reader, WORD_SIZE)
 
     # Decode config
     reader.read_bits(4)  # Ignore first 4 bits

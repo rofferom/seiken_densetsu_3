@@ -3,8 +3,9 @@
 import logging
 import sys
 import argparse
+import sd3.rom
 import sd3.gfx
-import sd3.text
+import sd3.seq.reader
 
 
 def int_parse(value):
@@ -41,6 +42,13 @@ class DumpFont(Cmd):
 
 
 class DumpDialog(Cmd):
+    class SeqObserver(sd3.seq.reader.Observer):
+        def __init__(self):
+            self.decoded = []
+
+        def text_decoded(self, decoded):
+            self.decoded.append(decoded)
+
     @staticmethod
     def register_parser(subparsers):
         name = "dump_dialog"
@@ -56,15 +64,17 @@ class DumpDialog(Cmd):
     def run(args):
         logging.info("Extract dialog %X from %s", args.idx, args.rom)
 
+        observer = DumpDialog.SeqObserver()
+
         rom = open_rom(args.rom)
-        decoder = sd3.text.Decoder(rom)
-        decoded = decoder.get_dialog(args.idx)
+        decoder = sd3.seq.reader.Reader(rom)
+        decoder.read_sequence(args.idx, observer)
 
         logging.info("Decoded data")
-        logging.info(decoded)
+        logging.info(observer.decoded)
 
         drawer = sd3.gfx.DialogDrawer(rom)
-        drawer.write_to_img(decoded, args.out)
+        drawer.write_to_img(observer.decoded, args.out)
 
 
 class GetOperationSub(Cmd):

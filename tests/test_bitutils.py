@@ -31,7 +31,7 @@ class TestBitReader(unittest.TestCase):
         self.src = None
 
     def test(self):
-        reader = sd3.bitutils.BitReader(self.src, 16)
+        reader = sd3.bitutils.BitReader.from_src(self.src, 16)
 
         # Read a complete word
         v = reader.read_bits(4)
