@@ -18,54 +18,29 @@ _SUBBLOCK_BASE = 0xF89800
 _SUBBLOCK_BANK = 0xF8
 
 
-class _RomReader:
-    def __init__(self, rom, addr):
-        self.rom = rom
-        self.addr = addr
-
-    def __call__(self):
-        self.rom.seek(self.addr)
-        value = self.rom.read_u16(endianess=sd3.rom.BIG_ENDIAN)
-        self.addr = self.rom.tell()
-
-        return value
-
-
-class _CtrlReader:
-    def __init__(self, reader, tree):
-        self.reader = reader
-        self.tree = tree
-
-    def __call__(self):
-        high = self.tree.decode(self.reader) & 0xFF
-        low = self.tree.decode(self.reader) & 0xFF
-
-        return (high << 8) | low
-
-
-class _Reader:
-    def __init__(self, reader, tree, parent=None):
-        self.reader = reader
+class _TxtReader:
+    def __init__(self, bitreader, tree, parent=None):
+        self.bitreader = bitreader
         self.tree = tree
         self.parent = parent
 
     def read_char(self, tree_idx):
-        return self.tree[tree_idx].decode(self.reader)
+        return self.tree[tree_idx].decode(self.bitreader)
 
     def get_parent(self):
         return self.parent
 
     def get_pending_byte(self):
-        if self.reader.count < 8:
+        if self.bitreader.count < 8:
             return None
 
         # Get the last 8 bits
-        return (self.reader.value >> (16 - self.reader.count)) & 0xFF
+        return (self.bitreader.value >> (16 - self.bitreader.count)) & 0xFF
 
 
 class Decoder:
     def __init__(self, rom):
-        self.rom = rom
+        self.rom = sd3.rom.Rom.from_rom(rom)
 
         self.ctrl_tree = sd3.tree.build_ctrl_tree(self.rom)
 
@@ -99,21 +74,21 @@ class Decoder:
     def _build_byte_ignore_op(self, count):
         def do_ignore(ctrl_reader):
             for _ in range(count):
-                self.ctrl_tree.decode(ctrl_reader)
+                ctrl_reader()
                 return None
 
         return do_ignore
 
     def _sub_0x68(self, ctrl_reader):
         # Skip two values
-        self.ctrl_tree.decode(ctrl_reader)
-        self.ctrl_tree.decode(ctrl_reader)
+        for _ in range(2):
+            ctrl_reader()
 
         # Two other values are often skipped, but the routine may
         # to read them. Raise an exception if some text ops are
         # ignored.
-        byte1 = self.ctrl_tree.decode(ctrl_reader)
-        byte2 = self.ctrl_tree.decode(ctrl_reader)
+        byte1 = ctrl_reader()
+        byte2 = ctrl_reader()
 
         intersection = list(set(_CODE_TXT) & {byte1, byte2})
         if intersection:
@@ -134,19 +109,59 @@ class Decoder:
 
         return self.rom.read_addr_from_ptr(_PTR_BASE, idx, bank)
 
+    def _build_bitreader_from_rom(self, addr):
+        # Prepare BitReader input
+        rom_reader = sd3.rom.Rom.from_rom(self.rom)
+        rom_reader.seek(addr)
+
+        def bitreader_provider():
+            return rom_reader.read_u16(endianess=sd3.rom.BIG_ENDIAN)
+
+        # Build BitReader
+        return sd3.bitutils.BitReader(bitreader_provider, 16)
+
+    def _build_main_txt_reader(self, ctrl_reader):
+        def bitreader_provider():
+            high = ctrl_reader() & 0xFF
+            low = ctrl_reader() & 0xFF
+
+            return (high << 8) | low
+
+        bitreader = sd3.bitutils.BitReader(bitreader_provider, 16)
+
+        return _TxtReader(bitreader, self.txt_main_tree)
+
+    def _build_sub_txt_reader(self, idx, parent):
+        idx -= 0x040C
+
+        addr = self.rom.read_addr_from_ptr(
+            _SUBBLOCK_BASE, idx, _SUBBLOCK_BANK)
+        logging.debug("Jump to: %X", addr)
+
+        bitreader = self._build_bitreader_from_rom(addr)
+
+        return _TxtReader(bitreader, self.txt_sub_tree, parent)
+
+    def _build_ctrl_reader(self, addr):
+        bitreader = self._build_bitreader_from_rom(addr)
+
+        def reader_cb():
+            v = self.ctrl_tree.decode(bitreader)
+            logging.debug("ctrl_reader: got %04X", v)
+            return v
+
+        return reader_cb
+
     def _read_dialog(self, ctrl_reader):
         decoded = []
 
         # Setup main text reader
-        txt_main_reader = _Reader(
-            sd3.bitutils.BitReader(
-                _CtrlReader(ctrl_reader, self.ctrl_tree), 16),
-            self.txt_main_tree)
+        main_txt_reader = self._build_main_txt_reader(ctrl_reader)
 
         # Default reader is main text reader
         # It can be replaced by a sub reader
         last_reader = None
-        txt_reader = txt_main_reader
+        txt_reader = main_txt_reader
 
         # Start decode
         while txt_reader is not None:
@@ -163,7 +178,7 @@ class Decoder:
                     char &= 0xFF
                     decoded.append(char)
                 else:
-                    txt_reader = self._build_sub_reader(char, txt_reader)
+                    txt_reader = self._build_sub_txt_reader(char, txt_reader)
             else:
                 decoded.append(char)
 
@@ -171,24 +186,10 @@ class Decoder:
         self.decoded.append(decoded)
         return last_reader.get_pending_byte()
 
-    def _build_sub_reader(self, idx, parent):
-        idx -= 0x040C
-
-        addr = self.rom.read_addr_from_ptr(
-            _SUBBLOCK_BASE, idx, _SUBBLOCK_BANK)
-        logging.debug("Jump to: %X", addr)
-
-        return _Reader(
-            sd3.bitutils.BitReader(_RomReader(self.rom, addr), 16),
-            self.txt_sub_tree,
-            parent)
-
     def get_dialog(self, idx):
         # Configure rom read
         txt_addr = self._get_text_addr(idx)
-
-        ctrl_reader = sd3.bitutils.BitReader(
-            _RomReader(self.rom, txt_addr), 16)
+        ctrl_reader = self._build_ctrl_reader(txt_addr)
 
         # Decode control stream
         self.decoded = []
@@ -200,7 +201,7 @@ class Decoder:
                 logging.debug("Ctrl byte: 0x%04X (from previous decode)",
                               op_id)
             else:
-                op_id = self.ctrl_tree.decode(ctrl_reader) & 0xFF
+                op_id = ctrl_reader() & 0xFF
                 logging.debug("Ctrl byte: 0x%04X (from ctrl stream)", op_id)
 
             if op_id == 0:

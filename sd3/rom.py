@@ -41,6 +41,18 @@ class Rom:
 
         return rom
 
+    @staticmethod
+    def from_rom(src):
+        rom = Rom()
+
+        rom.data = src.data
+        rom.addr = src.addr
+
+        rom.conv_addr = src.conv_addr
+        rom.tracer = src.tracer
+
+        return rom
+
     def seek(self, addr):
         self.addr = self.conv_addr.snes_to_rom(addr)
 
