@@ -1,0 +1,12 @@
+{% for sub in subroutines %}
+def sub_{{ '%0X' % sub}}(op_id, seq_reader, observer):
+    raise Exception("Subroutine {{ '%0X' % sub}} unimplemented (from op 0x%02X)" % op_id)
+
+
+{% endfor %}
+def get_op_map(rom):
+    return {
+{% for op in operation_map %}
+        0x{{'%02X' % op}}: sub_{{'%0X' % operation_map[op]}},
+{% endfor %}
+    }

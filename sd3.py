@@ -6,6 +6,7 @@ import argparse
 import sd3.rom
 import sd3.gfx
 import sd3.seq.reader
+import sd3.tools.seq_operations
 
 
 def int_parse(value):
@@ -101,6 +102,25 @@ class GetOperationSub(Cmd):
             rom = sd3.rom.Rom.from_file(rom, sd3.rom.HighRomConv)
             addr = rom.read_addr_from_ptr(_BASE, args.idx, _BANK)
             logging.info("Routine location: %06X", addr)
+
+
+class GenOperationMap(Cmd):
+    @staticmethod
+    def register_parser(subparsers):
+        name = "gen_operation_map"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("output", help="Output file")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        with open(args.rom, "rb") as rom:
+            rom = sd3.rom.Rom.from_file(rom, sd3.rom.HighRomConv)
+            sd3.tools.seq_operations.gen_map(rom, args.output)
+            logging.info("File generated: %s", args.output)
 
 
 def setup_logs():
