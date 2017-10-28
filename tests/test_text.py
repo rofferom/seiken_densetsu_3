@@ -9,7 +9,7 @@ class TestText(unittest.TestCase):
     def test_decode(self):
         f = tests.trace_tools.FileMock(tests.trace_tools.get_rom_size(),
                                        tests.text_data.decode_dump)
-        rom = sd3.rom.Rom(f, sd3.rom.HighRomConv)
+        rom = sd3.rom.Rom.from_file(f, sd3.rom.HighRomConv)
         decoder = sd3.text.Decoder(rom)
         decoded = decoder.get_dialog(tests.text_data.decode_idx)
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
             sys.exit(1)
 
         tracer = tests.trace_tools.RomTracer()
-        rom = sd3.rom.Rom(f, sd3.rom.HighRomConv, tracer=tracer)
+        rom = sd3.rom.Rom.from_file(f, sd3.rom.HighRomConv, tracer=tracer)
         decoder = sd3.text.Decoder(rom)
         decoded = decoder.get_dialog(tests.text_data.decode_idx)
 

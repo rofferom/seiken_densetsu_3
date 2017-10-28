@@ -20,7 +20,7 @@ class TestRom(unittest.TestCase):
 
         file_mock = tests.trace_tools.FileMock(tests.trace_tools.get_rom_size(),
                                                data_map)
-        rom = sd3.rom.Rom(file_mock, sd3.rom.HighRomConv)
+        rom = sd3.rom.Rom.from_file(file_mock, sd3.rom.HighRomConv)
 
         rom.seek(0xC00000)
         self.assertEqual(rom.tell(), 0xC00000)

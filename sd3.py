@@ -13,7 +13,7 @@ def int_parse(value):
 
 def open_rom(path):
     f = open(path, "rb")
-    return sd3.rom.Rom(f, sd3.rom.HighRomConv)
+    return sd3.rom.Rom.from_file(f, sd3.rom.HighRomConv)
 
 
 class Cmd:
@@ -88,7 +88,7 @@ class GetOperationSub(Cmd):
             logging.error("Invalid index. Got %X, count=%X", args.idx, _COUNT)
 
         with open(args.rom, "rb") as rom:
-            rom = sd3.rom.Rom(rom, sd3.rom.HighRomConv)
+            rom = sd3.rom.Rom.from_file(rom, sd3.rom.HighRomConv)
             addr = rom.read_addr_from_ptr(_BASE, args.idx, _BANK)
             logging.info("Routine location: %06X", addr)
 

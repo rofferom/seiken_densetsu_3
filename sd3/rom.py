@@ -21,13 +21,25 @@ class HighRomConv:
 
 
 class Rom:
-    def __init__(self, f, conv_addr, tracer=None):
-        f.seek(0)
-        self.data = f.read()
+    def __init__(self):
+        self.data = None
         self.addr = 0
 
-        self.conv_addr = conv_addr
-        self.tracer = tracer
+        self.conv_addr = None
+        self.tracer = None
+
+    @staticmethod
+    def from_file(f, conv_addr, tracer=None):
+        rom = Rom()
+
+        f.seek(0)
+        rom.data = f.read()
+        rom.addr = 0
+
+        rom.conv_addr = conv_addr
+        rom.tracer = tracer
+
+        return rom
 
     def seek(self, addr):
         self.addr = self.conv_addr.snes_to_rom(addr)

@@ -9,7 +9,7 @@ class TestReadTile(unittest.TestCase):
     def test(self):
         f = tests.trace_tools.FileMock(tests.trace_tools.get_rom_size(),
                                        tests.gfx_data.decode_dump)
-        rom = sd3.rom.Rom(f, sd3.rom.HighRomConv)
+        rom = sd3.rom.Rom.from_file(f, sd3.rom.HighRomConv)
         font_reader = sd3.gfx.FontReader(rom)
 
         for c in tests.gfx_data.char_list:
