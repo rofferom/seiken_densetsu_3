@@ -10,6 +10,7 @@ import sd3.tools.seq_operations
 import sd3.tools.jap_tbl
 import sd3.text_dumper
 import sd3.disasm.cpu
+import sd3.cfa.cfg
 
 
 def int_parse(value):
@@ -201,6 +202,36 @@ class DisplaySub(Cmd):
             p = sd3.disasm.cpu.PRegister(X=0, M=0)
             routine = cpu_reader.read_routine(args.addr, p)
             routine.display()
+
+
+class DrawSub(Cmd):
+    @staticmethod
+    def register_parser(subparsers):
+        name = "draw_sub"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("addr", type=int_parse, help="Subroutine address")
+        parser.add_argument("output", help="Output file")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        logging.info("Open file: %s", args.rom)
+        with open(args.rom, "rb") as f:
+            rom = sd3.rom.Rom.from_file(f, sd3.rom.HighRomConv)
+            cpu_reader = sd3.disasm.cpu.Reader(rom)
+
+            p = sd3.disasm.cpu.PRegister(X=0, M=0)
+            logging.info("Read routine: %X", args.addr)
+            routine = cpu_reader.read_routine(args.addr, p)
+
+        logging.info("Build graph")
+        cfg = sd3.cfa.cfg.build_graph(routine)
+
+        graph_path = sd3.cfa.cfg.draw_graph(cfg, args.output)
+        logging.info("Graph saved to %s" % graph_path)
 
 
 class GenOperationMap(Cmd):

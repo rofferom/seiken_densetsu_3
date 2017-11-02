@@ -1,3 +1,4 @@
 Pillow
 jinja2
 tesserocr
+graphviz
