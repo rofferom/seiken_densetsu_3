@@ -7,6 +7,7 @@ import sd3.rom
 import sd3.gfx
 import sd3.seq.reader
 import sd3.tools.seq_operations
+import sd3.tools.jap_tbl
 
 
 def int_parse(value):
@@ -40,6 +41,43 @@ class DumpFont(Cmd):
         rom = open_rom(args.rom)
         font_reader = sd3.gfx.FontReader(rom)
         font_reader.dump_to_file(args.out)
+
+
+class GenJapTable(Cmd):
+    @staticmethod
+    def register_parser(subparsers):
+        name = "gen_jap_table"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("out", help="Output path")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        logging.info("Generate jap table from %s to %s", args.rom, args.out)
+
+        rom = open_rom(args.rom)
+        sd3.tools.jap_tbl.generate(rom, args.out)
+
+
+class GenTableHtml(Cmd):
+    @staticmethod
+    def register_parser(subparsers):
+        name = "gen_table_html"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("tbl_path", help="Table path")
+        parser.add_argument("out_folder", help="Output folder")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        rom = open_rom(args.rom)
+        sd3.tools.jap_tbl.generate_html(rom, args.tbl_path, args.out_folder)
 
 
 class DumpDialog(Cmd):

@@ -32,6 +32,15 @@ class Tile:
     def get_raw_content(self):
         return self.tile
 
+    def to_img(self):
+        img = Image.new("RGB", (_FONT_CHAR_WIDTH, _FONT_CHAR_DISPLAY_HEIGHT))
+        draw = ImageDraw.Draw(img)
+
+        _DrawUtils.draw_char(draw, self, 0, 0)
+
+        del draw
+        return img
+
 
 class _FontCharReader:
     def __init__(self, raw_char):
@@ -217,6 +226,11 @@ class FontReader:
 
         reader = _FontCharReader(raw_char)
         return reader.decode()
+
+    def read_char_gen(self):
+        for idx in range(_FONT_CHAR_COUNT):
+            tile = self.read_char(idx)
+            yield (idx, tile)
 
     def dump_to_file(self, path):
         img_builder = FontImgBuilder(self)

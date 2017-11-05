@@ -1,2 +1,3 @@
 Pillow
 jinja2
+tesserocr
