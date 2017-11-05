@@ -11,6 +11,7 @@ import sd3.tools.jap_tbl
 import sd3.text_dumper
 import sd3.disasm.cpu
 import sd3.cfa.cfg
+import sd3.cfa.dominator
 
 
 def int_parse(value):
@@ -231,6 +232,49 @@ class DrawSub(Cmd):
         cfg = sd3.cfa.cfg.build_graph(routine)
 
         graph_path = sd3.cfa.cfg.draw_graph(cfg, args.output)
+        logging.info("Graph saved to %s" % graph_path)
+
+
+class DrawSubDom(Cmd):
+    @staticmethod
+    def node_str(node):
+        node_str = ""
+
+        data = node.get_data()
+        for instr in data.get_instructions():
+            node_str += "%s\l" % instr.to_str(display_addr=False)
+
+        return node_str
+
+    @staticmethod
+    def register_parser(subparsers):
+        name = "draw_sub_dominator"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("addr", type=int_parse, help="Subroutine address")
+        parser.add_argument("output", help="Output file")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        logging.info("Open file: %s", args.rom)
+        with open(args.rom, "rb") as f:
+            rom = sd3.rom.Rom.from_file(f, sd3.rom.HighRomConv)
+            cpu_reader = sd3.disasm.cpu.Reader(rom)
+
+            p = sd3.disasm.cpu.PRegister(X=0, M=0)
+            logging.info("Read routine: %X", args.addr)
+            routine = cpu_reader.read_routine(args.addr, p)
+
+        logging.info("Build graph")
+        cfg = sd3.cfa.cfg.build_graph(routine)
+
+        cfg_dom = sd3.cfa.dominator.build_graph(cfg)
+
+        graph_path = sd3.cfa.dominator.draw_graph(cfg_dom,
+            args.output, node_str=DrawSubDom.node_str)
         logging.info("Graph saved to %s" % graph_path)
 
 

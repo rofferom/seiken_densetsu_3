@@ -3,7 +3,7 @@ import os
 import tempfile
 import unittest
 import sd3.cfa.graph
-
+import sd3.cfa.shortestpath
 
 class TestGraph(unittest.TestCase):
     def test_edge(self):
@@ -166,3 +166,45 @@ class TestGraph(unittest.TestCase):
 
         os.close(fd)
         os.remove(path)
+
+    def test_shortest_path(self):
+        graph = sd3.cfa.graph.Graph()
+
+        # Create nodes
+        (node1, _) = graph.add_node(1)
+        (node2, _) = graph.add_node(2)
+        (node3, _) = graph.add_node(3)
+        (node4, _) = graph.add_node(4)
+        (node5, _) = graph.add_node(5)
+        (node6, _) = graph.add_node(6)
+        (node7, _) = graph.add_node(7)
+
+        # Create edges
+        node1.add_successor(node2)
+        node1.add_successor(node5)
+        node1.add_successor(node7)
+
+        node2.add_successor(node3)
+        node2.add_successor(node4)
+
+        node3.add_successor(node4)
+        node3.add_successor(node7)
+
+        node5.add_successor(node3)
+        node5.add_successor(node5)
+        node5.add_successor(node6)
+
+        node7.add_successor(node6)
+
+        # Check some paths
+        self.assertEqual(sd3.cfa.shortestpath.get(graph, node1, node3), 2)
+        self.assertEqual(sd3.cfa.shortestpath.get(graph, node1, node4), 2)
+        self.assertEqual(sd3.cfa.shortestpath.get(graph, node1, node6), 2)
+        self.assertEqual(sd3.cfa.shortestpath.get(graph, node1, node7), 1)
+
+        self.assertEqual(sd3.cfa.shortestpath.get(graph, node2, node4), 1)
+        self.assertEqual(
+            sd3.cfa.shortestpath.get(graph, node2, node1),
+            sd3.cfa.shortestpath.INFINITE)
+
+        self.assertEqual(sd3.cfa.shortestpath.get(graph, node5, node6), 1)
