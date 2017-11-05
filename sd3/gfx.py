@@ -4,7 +4,11 @@ _FONT_START_CHAR = 0x20
 
 _FONT_ADDRESS = 0xFE2F00
 _FONT_CHAR_SIZE = 25
-_FONT_CHAR_DIM = 14
+
+_FONT_CHAR_WIDTH = 14
+_FONT_CHAR_HEIGHT = 14
+_FONT_CHAR_DISPLAY_HEIGHT = _FONT_CHAR_HEIGHT * 2
+
 _FONT_CHAR_COUNT = 988
 
 _IMG_COLUMN_COUNT = 16
@@ -33,7 +37,7 @@ class _FontCharReader:
     def __init__(self, raw_char):
         self.raw_char = raw_char
         self.read_idx = 0
-        self.tile = Tile(_FONT_CHAR_DIM, _FONT_CHAR_DIM)
+        self.tile = Tile(_FONT_CHAR_WIDTH, _FONT_CHAR_HEIGHT)
 
     def _get_byte(self):
         value = self.raw_char[self.read_idx]
@@ -41,8 +45,8 @@ class _FontCharReader:
         return value
 
     def _write_line(self, y, raw_line):
-        for i in range(_FONT_CHAR_DIM):
-            self.tile[i, y] = (raw_line >> (_FONT_CHAR_DIM-i-1)) & 1
+        for i in range(_FONT_CHAR_WIDTH):
+            self.tile[i, y] = (raw_line >> (_FONT_CHAR_WIDTH-i-1)) & 1
 
     def _write_line_block(self, y, line_count):
         next_line = 0
@@ -94,15 +98,19 @@ class _DrawUtils:
     def draw_char(draw, char, start_x, start_y):
         char_color = (255, 255, 255)
 
-        for x in range(_FONT_CHAR_DIM):
-            for y in range(_FONT_CHAR_DIM):
+        for x in range(_FONT_CHAR_WIDTH):
+            for y in range(_FONT_CHAR_HEIGHT):
                 value = char[x, y]
                 if value == 0:
                     continue
 
                 pixel_x = start_x + x
-                pixel_y = start_y + y
+                pixel_y = start_y + y * 2
+
                 draw.point([(pixel_x, pixel_y)], char_color)
+
+                draw.point([(pixel_x, pixel_y)], char_color)
+                draw.point([(pixel_x, pixel_y+1)], char_color)
 
 
 class FontImgBuilder:
@@ -124,8 +132,8 @@ class FontImgBuilder:
             self.row_count += 1
 
         # Compute width to place a grid
-        self.width = 1 + (_FONT_CHAR_DIM + 1) * self.column_count
-        self.height = 1 + (_FONT_CHAR_DIM + 1) * self.row_count
+        self.width = 1 + (_FONT_CHAR_WIDTH + 1) * self.column_count
+        self.height = 1 + (_FONT_CHAR_DISPLAY_HEIGHT + 1) * self.row_count
 
     def _draw_grid(self, draw):
         grid_color = (0, 0, 255)
@@ -142,7 +150,7 @@ class FontImgBuilder:
         # Draw horizontal lines
         for i in range(self.row_count):
             origin_x = 0
-            origin_y = (_FONT_CHAR_DIM+1) * i
+            origin_y = (_FONT_CHAR_DISPLAY_HEIGHT+1) * i
 
             end_x = self.width-1
             end_y = origin_y
@@ -151,7 +159,7 @@ class FontImgBuilder:
 
         # Draw vertical lines
         for i in range(self.column_count):
-            origin_x = (_FONT_CHAR_DIM+1) * i
+            origin_x = (_FONT_CHAR_WIDTH+1) * i
             origin_y = 0
 
             end_x = origin_x
@@ -165,15 +173,16 @@ class FontImgBuilder:
         row_idx = i // self.column_count
         column_idx = i % self.column_count
 
-        for x in range(_FONT_CHAR_DIM):
-            for y in range(_FONT_CHAR_DIM):
+        for x in range(_FONT_CHAR_WIDTH):
+            for y in range(_FONT_CHAR_HEIGHT):
                 value = char[x, y]
                 if value == 0:
                     continue
 
-                p_x = 1 + column_idx * (_FONT_CHAR_DIM + 1) + x
-                p_y = 1 + row_idx * (_FONT_CHAR_DIM + 1) + y
+                p_x = 1 + column_idx * (_FONT_CHAR_WIDTH + 1) + x
+                p_y = 1 + row_idx * (_FONT_CHAR_HEIGHT + 1) + y
                 draw.point([(p_x, p_y)], char_color)
+                draw.point([(p_x, p_y+1)], char_color)
 
     def dump_to_file(self, path):
         img = Image.new("RGB", (self.width, self.height))
@@ -187,8 +196,8 @@ class FontImgBuilder:
             row_idx = i // self.column_count
             column_idx = i % self.column_count
 
-            start_x = 1 + column_idx * (_FONT_CHAR_DIM + 1)
-            start_y = 1 + row_idx * (_FONT_CHAR_DIM + 1)
+            start_x = 1 + column_idx * (_FONT_CHAR_WIDTH + 1)
+            start_y = 1 + row_idx * (_FONT_CHAR_DISPLAY_HEIGHT + 1)
 
             _DrawUtils.draw_char(draw, char, start_x, start_y)
 
@@ -237,11 +246,11 @@ class DialogDrawer:
             count = self._get_char_count(txt)
             width = max(width, count)
 
-        return (width * _FONT_CHAR_DIM, height * _FONT_CHAR_DIM)
+        return (width * _FONT_CHAR_WIDTH, height * _FONT_CHAR_DISPLAY_HEIGHT)
 
     def _write_txt(self, draw, txt, line):
         start_x = 0
-        start_y = line * _FONT_CHAR_DIM
+        start_y = line * _FONT_CHAR_DISPLAY_HEIGHT
 
         for char in txt:
             if char < _FONT_START_CHAR:
@@ -250,7 +259,7 @@ class DialogDrawer:
             tile = self.font_reader.read_char(char - _FONT_START_CHAR)
             _DrawUtils.draw_char(draw, tile, start_x, start_y)
 
-            start_x += _FONT_CHAR_DIM
+            start_x += _FONT_CHAR_WIDTH
 
     def write_to_img(self, dialog, path):
         dim = self._get_img_dim(dialog)

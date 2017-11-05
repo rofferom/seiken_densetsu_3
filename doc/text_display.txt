@@ -3,7 +3,7 @@
 0xFE2F00: font location.
 
 0x7e3400: address of the text that will be transfered to the VRAM.
- 
+
 0x0800: VRAM address of the decoded text.
 
 sub_C4754D
@@ -31,7 +31,7 @@ sub_C475A5
 			This routine decodes a char stored in the font, and stores it in
 			the RAM at the approprate index.
 
-			The font has a weird encoding. A 14x14 char is encoded in 25 bytes.
+			The font has a weird encoding. A 14x28 char is encoded in 25 bytes.
 			Each 16 bits word is divided as:
 				cccc cccc cccc ccnn
 
@@ -48,6 +48,9 @@ sub_C475A5
 				- with 5 lines read, we have gathered 2 * 5 = 10 bits. There
 				  are 4 missing bits to have the last line. An extra byte is
 				  read to complete the last line
+
+      There are only 14 lines in the ROM, but each line is written twice.
+      So the ROM display a 14x28 char from a 14x24 char stored in the ROM.
 
 			Note that the decoded char value isn't the index of the char into
 			the font. 0x20 should be substracted before reading the font
