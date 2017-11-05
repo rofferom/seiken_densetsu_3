@@ -8,6 +8,7 @@ import sd3.gfx
 import sd3.seq.reader
 import sd3.tools.seq_operations
 import sd3.tools.jap_tbl
+import sd3.text_dumper
 
 
 def int_parse(value):
@@ -114,6 +115,43 @@ class DumpDialog(Cmd):
 
         drawer = sd3.gfx.DialogDrawer(rom)
         drawer.write_to_img(observer.decoded, args.out)
+
+
+class ExtractText(Cmd):
+    @staticmethod
+    def register_parser(subparsers):
+        name = "extract_text"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("table", help="Table path")
+        parser.add_argument("out", help="Output path")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        logging.info("Extract dialogs from %s, using table %s",
+                     args.rom, args.table)
+
+        rom = open_rom(args.rom)
+        stats = sd3.text_dumper.dump(rom, args.table, args.out)
+
+        def percent(part):
+            return (part * 100) // stats.seq_count
+
+        logging.info("Summary")
+        logging.info("\tDumped: %d",
+                     stats.seq_count)
+
+        logging.info("\tOk: %d (%d%%)",
+                     stats.seq_ok, percent(stats.seq_ok))
+
+        logging.info("\tError: %d (%d%%)",
+                     stats.seq_error, percent(stats.seq_error))
+
+        logging.info("\tEmpty: %d (%d%%)",
+                     stats.seq_empty, percent(stats.seq_empty))
 
 
 class GetOperationSub(Cmd):
