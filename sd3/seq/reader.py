@@ -34,7 +34,7 @@ class Reader:
         elif idx < 0xC00:
             bank = 0xFB
         else:
-            raise Exception("Unexpected bank")
+            bank = 0xF8
 
         return self.rom.read_addr_from_ptr(_PTR_BASE, idx, bank)
 
