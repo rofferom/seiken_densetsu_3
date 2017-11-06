@@ -18,7 +18,7 @@ def sub_C43F02(op_id, seq_reader, observer):
 
 
 def sub_C43B03(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B03 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43784(op_id, seq_reader, observer):
@@ -26,7 +26,7 @@ def sub_C43784(op_id, seq_reader, observer):
 
 
 def sub_C44105(op_id, seq_reader, observer):
-    raise Exception("Subroutine C44105 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43804(op_id, seq_reader, observer):
@@ -34,7 +34,7 @@ def sub_C43804(op_id, seq_reader, observer):
 
 
 def sub_C43B87(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B87 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43688(op_id, seq_reader, observer):
@@ -46,27 +46,27 @@ def sub_C43D89(op_id, seq_reader, observer):
 
 
 def sub_C4390B(op_id, seq_reader, observer):
-    raise Exception("Subroutine C4390B unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C4410C(op_id, seq_reader, observer):
-    raise Exception("Subroutine C4410C unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43927(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43927 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43F0E(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43F0E unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43B0E(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B0E unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43391(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43391 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43A13(op_id, seq_reader, observer):
@@ -82,31 +82,31 @@ def sub_C43E14(op_id, seq_reader, observer):
 
 
 def sub_C43516(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43516 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43A97(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43A97 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C44198(op_id, seq_reader, observer):
-    raise Exception("Subroutine C44198 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43B19(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B19 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43613(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43613 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43896(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43896 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(2, seq_reader)
 
 
 def sub_C43F1C(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43F1C unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43E9D(op_id, seq_reader, observer):
@@ -118,35 +118,35 @@ def sub_C434A0(op_id, seq_reader, observer):
 
 
 def sub_C43978(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43978 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43B24(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B24 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C439A6(op_id, seq_reader, observer):
-    raise Exception("Subroutine C439A6 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43CA6(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43CA6 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43328(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43328 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43A27(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43A27 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43AAA(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43AAA unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C440A6(op_id, seq_reader, observer):
-    raise Exception("Subroutine C440A6 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(2, seq_reader)
 
 
 def sub_C435A9(op_id, seq_reader, observer):
@@ -162,7 +162,7 @@ def sub_C433AE(op_id, seq_reader, observer):
 
 
 def sub_C43B2F(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B2F unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C437AE(op_id, seq_reader, observer):
@@ -174,7 +174,7 @@ def sub_C4382E(op_id, seq_reader, observer):
 
 
 def sub_C43537(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43537 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43A39(op_id, seq_reader, observer):
@@ -182,11 +182,11 @@ def sub_C43A39(op_id, seq_reader, observer):
 
 
 def sub_C43B3A(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B3A unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43FBA(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43FBA unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C4363D(op_id, seq_reader, observer):
@@ -205,19 +205,19 @@ def sub_C4363D(op_id, seq_reader, observer):
 
 
 def sub_C43443(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43443 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C439C4(op_id, seq_reader, observer):
-    raise Exception("Subroutine C439C4 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43B45(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B45 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43C46(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43C46 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43BC6(op_id, seq_reader, observer):
@@ -233,23 +233,23 @@ def sub_C438C3(op_id, seq_reader, observer):
 
 
 def sub_C434CB(op_id, seq_reader, observer):
-    raise Exception("Subroutine C434CB unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43CCC(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43CCC unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43DCD(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43DCD unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43B50(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B50 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43AD1(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43AD1 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43D52(op_id, seq_reader, observer):
@@ -261,11 +261,11 @@ def sub_C436D3(op_id, seq_reader, observer):
 
 
 def sub_C43354(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43354 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43355(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43355 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C439D4(op_id, seq_reader, observer):
@@ -273,19 +273,19 @@ def sub_C439D4(op_id, seq_reader, observer):
 
 
 def sub_C44056(op_id, seq_reader, observer):
-    raise Exception("Subroutine C44056 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(2, seq_reader)
 
 
 def sub_C43458(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43458 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43F5A(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43F5A unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43B5B(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B5B unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C4355B(op_id, seq_reader, observer):
@@ -301,7 +301,7 @@ def sub_C438E5(op_id, seq_reader, observer):
 
 
 def sub_C43B66(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B66 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43E67(op_id, seq_reader, observer):
@@ -313,15 +313,15 @@ def sub_C435ED(op_id, seq_reader, observer):
 
 
 def sub_C434EF(op_id, seq_reader, observer):
-    raise Exception("Subroutine C434EF unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43B71(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B71 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43CF5(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43CF5 unimplemented (from op 0x%02X)" % op_id)
+    pass
 
 
 def sub_C43C76(op_id, seq_reader, observer):
@@ -333,15 +333,15 @@ def sub_C43475(op_id, seq_reader, observer):
 
 
 def sub_C43AF8(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43AF8 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C43779(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43779 unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(1, seq_reader)
 
 
 def sub_C43B7C(op_id, seq_reader, observer):
-    raise Exception("Subroutine C43B7C unimplemented (from op 0x%02X)" % op_id)
+    _read_n_bytes(3, seq_reader)
 
 
 def sub_C433FE(op_id, seq_reader, observer):
