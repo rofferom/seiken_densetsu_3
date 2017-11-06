@@ -8,6 +8,12 @@ import sd3.seq.ops
 _PTR_BASE = 0xF80000
 
 
+class ReadException(Exception):
+    def __init__(self, op_id):
+        super().__init__(self)
+        self.op_id = op_id
+
+
 class Observer:
     def text_decoded(self, decoded):
         pass
@@ -63,10 +69,10 @@ class Reader:
                 logging.debug("End of stream")
                 break
 
-            try:
-                op_cb = self.op_map[op_id]
-            except KeyError:
-                logging.error("Unknown operation code %02X", op_id)
-                raise
+            op_cb = self.op_map[op_id]
 
-            next_ctrl_byte = op_cb(op_id, seq_reader, observer)
+            try:
+                next_ctrl_byte = op_cb(op_id, seq_reader, observer)
+            except Exception:
+                logging.error("Operation code %02X processing failed", op_id)
+                raise ReadException(op_id)
