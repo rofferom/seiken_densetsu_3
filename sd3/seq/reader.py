@@ -25,7 +25,7 @@ class Reader:
         self.tree = sd3.tree.build_ctrl_tree(self.rom)
         self.op_map = sd3.seq.ops.get_op_map(self.rom)
 
-    def _get_sequence_addr(self, idx):
+    def get_sequence_addr(self, idx):
         # Get bank
         if idx < 0x600:
             bank = 0xF9
@@ -50,7 +50,10 @@ class Reader:
 
     def read_sequence(self, idx, observer):
         # Configure rom read
-        seq_addr = self._get_sequence_addr(idx)
+        seq_addr = self.get_sequence_addr(idx)
+        return self.read_sequence_from_addr(seq_addr, observer)
+
+    def read_sequence_from_addr(self, seq_addr, observer):
         seq_reader = self._build_seq_reader(seq_addr)
 
         # Decode control stream
