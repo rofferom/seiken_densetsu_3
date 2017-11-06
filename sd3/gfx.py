@@ -7,6 +7,8 @@ _FONT_CHAR_SIZE = 25
 
 _FONT_CHAR_WIDTH = 14
 _FONT_CHAR_HEIGHT = 14
+
+_FONT_CHAR_DISPLAY_WIDTH = 16
 _FONT_CHAR_DISPLAY_HEIGHT = _FONT_CHAR_HEIGHT * 2
 
 _FONT_CHAR_COUNT = 988
@@ -260,7 +262,8 @@ class DialogDrawer:
             count = self._get_char_count(txt)
             width = max(width, count)
 
-        return (width * _FONT_CHAR_WIDTH, height * _FONT_CHAR_DISPLAY_HEIGHT)
+        return (width * _FONT_CHAR_DISPLAY_WIDTH,
+                height * _FONT_CHAR_DISPLAY_HEIGHT)
 
     def _write_txt(self, draw, txt, line):
         start_x = 0
@@ -273,7 +276,7 @@ class DialogDrawer:
             tile = self.font_reader.read_char(char - _FONT_START_CHAR)
             _DrawUtils.draw_char(draw, tile, start_x, start_y)
 
-            start_x += _FONT_CHAR_WIDTH
+            start_x += _FONT_CHAR_DISPLAY_WIDTH
 
     def write_to_img(self, dialog, path):
         dim = self._get_img_dim(dialog)
