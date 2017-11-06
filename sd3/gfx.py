@@ -151,7 +151,7 @@ class FontImgBuilder:
 
         # Draw right and bottom borders. The two others will be built
         # with the vertical and horizontal lines
-        top_right = (self.width-1), 0
+        top_right = (self.width-1, 0)
         bottom_left = (0, self.height-1)
         bottom_right = (self.width-1, self.height-1)
 
