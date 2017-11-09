@@ -2,7 +2,7 @@ import os
 import jinja2
 
 
-def _get_op_list(rom):
+def get_op_list(rom):
     _BASE = 0xC43128
     _COUNT = 0x100
     _BANK = 0xC4
@@ -24,7 +24,7 @@ def gen_map(rom, output_path):
     operation_map = {}
     subroutines = set()
 
-    for op_id, sub_addr in _get_op_list(rom):
+    for op_id, sub_addr in get_op_list(rom):
         subroutines.add(sub_addr)
         operation_map[op_id] = sub_addr
 
