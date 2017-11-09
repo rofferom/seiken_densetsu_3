@@ -12,6 +12,7 @@ import sd3.text_dumper
 import sd3.disasm.cpu
 import sd3.cfa.cfg
 import sd3.cfa.dominator
+import sd3.tools.gen_op_report
 
 
 def int_parse(value):
@@ -294,6 +295,30 @@ class GenOperationMap(Cmd):
         with open(args.rom, "rb") as rom:
             rom = sd3.rom.Rom.from_file(rom, sd3.rom.HighRomConv)
             sd3.tools.seq_operations.gen_map(rom, args.output)
+            logging.info("File generated: %s", args.output)
+
+
+class GenOperationReport(Cmd):
+    @staticmethod
+    def register_parser(subparsers):
+        name = "gen_operation_report"
+
+        parser = subparsers.add_parser(name)
+        parser.add_argument("rom", help="Source ROM")
+        parser.add_argument("output", help="Output file")
+
+        return name
+
+    @staticmethod
+    def run(args):
+        with open(args.rom, "rb") as rom:
+            rom = sd3.rom.Rom.from_file(rom, sd3.rom.HighRomConv)
+
+            cfg = sd3.tools.gen_op_report.Cfg()
+            cfg.track_routine = 0xC00760
+            cfg.ignore_list = [0xC4403A, 0xC44048]
+
+            sd3.tools.gen_op_report.gen_html_report(rom, cfg, args.output)
             logging.info("File generated: %s", args.output)
 
 

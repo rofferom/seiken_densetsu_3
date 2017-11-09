@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 80%;
+      }
+
+      th, td {
+        text-align: center;
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      tr:hover {
+        background-color: #f5f5f5;
+      }
+
+      .status_ok {
+        background-color: #4CAF50;
+      }
+
+      .status_ignored {
+        background-color: #e67e22;
+      }
+
+      .status_ko {
+        background-color: crimson;
+      }
+
+      .text_ok {
+        color: #4CAF50;
+        font-weight: bold;
+      }
+
+      .text_ko {
+        color: crimson;
+        font-weight: bold;
+      }
+
+      .text_ignored {
+        color: #e67e22;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Operation handlers stats</h1>
+
+    <h2>Global stats</h2>
+    <p>
+      <ul>
+        <li>Routine count: {{report.all_routines|length}}</li>
+        <li>Routine <span class="text_ok">OK</span>: {{report.routines_ok|length}}</li>
+        <li>Routine <span class="text_ko">KO</span>: {{report.routines_ko|length}}</li>
+        <li>Routine <span class="text_ignored">Ignored</span>: {{report.routines_ignored|length}}</li>
+      </ul>
+    </p>
+
+    <h2>Routines</h2>
+    <table>
+      <tr>
+        <th>Routine</th>
+        <th>Direct calls</th>
+        <th>Conditionnal call</th>
+        <th>Called in a loop</th>
+        <th>Indexed calls</th>
+        <th>Jumps</th>
+        <th>Subroutine direct calls</th>
+        <th>Status</th>
+      </tr>
+      {% for report in report.all_routines %}
+      <tr>
+        <td>sub_{{ '%0X' % report.addr}}</td>
+        <td>{{report.calls}}</td>
+        <td>{{report.cond_calls}}</td>
+        <td>{{report.in_loop_calls}}</td>
+        <td>{{report.indexed_calls}}</td>
+        <td>{{report.jumps}}</td>
+        {% if report.subroutines|length > 0 %}
+        <td>
+        {% for sub in report.subroutines %}
+        sub_{{ '%0X' % sub.addr}}: {{sub.count}} calls at depth {{sub.depth}}</br>
+        {% endfor %}
+        </td>
+        {% else %}
+        <td>0</td>
+        {% endif %}
+        <td class="status_{{report.status|lower}}">{{report.status}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
