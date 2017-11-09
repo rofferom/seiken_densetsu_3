@@ -1,5 +1,5 @@
 import os
-import jinja2
+import sd3.tools.jinja2
 
 
 def get_op_list(rom):
@@ -11,14 +11,6 @@ def get_op_list(rom):
         sub_addr = rom.read_addr_from_ptr(_BASE, op_id, _BANK)
         yield (op_id, sub_addr)
 
-
-def _load_jina_template(name):
-    template_dir = os.path.dirname(os.path.abspath(__file__))
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
-                             trim_blocks=True, lstrip_blocks=True)
-    return env.get_template(name)
-
-
 def gen_map(rom, output_path):
     # List subroutines
     operation_map = {}
@@ -29,12 +21,13 @@ def gen_map(rom, output_path):
         operation_map[op_id] = sub_addr
 
     # Generate template
-    template = _load_jina_template("gen_operation_map.template")
+    template = sd3.tools.jinja2.load_template(
+        "gen_operation_map.template",
+        os.path.dirname(os.path.abspath(__file__)))
 
     rendered = template.render(
         operation_map=operation_map,
         subroutines=subroutines)
 
     # Write output file
-    with open(output_path, 'w') as out:
-        out.write(rendered)
+    sd3.tools.jinja2.write_rendered(rendered, output_path)
